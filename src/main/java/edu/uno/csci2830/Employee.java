@@ -1,8 +1,6 @@
 package edu.uno.csci2830;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents an employee in the organization.
@@ -61,7 +59,8 @@ public class Employee{
         this.dateLastMaint = LocalDate.now();
         if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
             this.active = true;
-        } else {this.active = false;};
+        } else {
+            this.active = false;};
         System.out.println("Employee added successfully! Employee ID = " + id);
     }
 
@@ -85,7 +84,6 @@ public class Employee{
      * @return  Employee's ID Number
      */
     public int getId(){
-        System.out.println("Employee ID Number: " + this.id + "\n");
         return this.id;
     }
 
@@ -112,7 +110,7 @@ public class Employee{
      *
      * @param firstname Employee's New First Name
      */
-    public void setFirstName(String firstname){
+    public void setFirstName(String firstName){
         this.firstName = firstName;
         this.dateLastMaint = LocalDate.now();
         System.out.println("\nFirst Name Updated!\n");
@@ -160,7 +158,7 @@ public class Employee{
      */
     @Override
     public String toString(){
-        return ("First Name: " + this.firstName + "\nLast Name: " + this.lastName + "\n"
+        return ("Id: " + this.id + "\nFirst Name: " + this.firstName + "\nLast Name: " + this.lastName + "\n"
         + "Title: " + this.title + "\nDepartment: " + this.department + "\n"
         + "Start Date: " + this.startDate + "\nTerm Date: " + this.termDate + "\n"
         + "Active? " + this.active + "\n\n");

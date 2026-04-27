@@ -1,6 +1,5 @@
 package edu.uno.csci2830;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
 
@@ -17,7 +16,7 @@ import java.time.LocalDate;
  * in the session. </p>
  *
  * @author Shelby Wells
- * @version 1.0
+ * @version 2.0
  */
 public class EmployeeMain {
     /**
@@ -26,9 +25,8 @@ public class EmployeeMain {
      * @param args command-line arguments (not used)
      */
     static void main(String[] args) {
-        //Initialize employee list
-        ArrayList<Employee> employees = new ArrayList<>();
-        int nextId = 1000;
+        //Initialize Employee Manager
+        EmployeeManager manager = new EmployeeManager();
 
         //Initialize Scanner
         Scanner sc = new Scanner(System.in);
@@ -38,7 +36,7 @@ public class EmployeeMain {
 
         //Initialize Menu Options
         String employeeMenuOptions = """
-                ** Welcome to the Mav Employee Database ***
+                ** Welcome to the NesTrack Employee Database ***
                 \tWhat would you like to do?
                 \t\t1. Create a new employee
                 \t\t2. Search for an employee
@@ -47,8 +45,10 @@ public class EmployeeMain {
                 \t\t5. View All Employees
                 \t\t6. Exit
                 """;
+
         //Indefinite loop while true
         while (true) {
+
             //Display menu options for user
             System.out.println(employeeMenuOptions);
 
@@ -81,9 +81,7 @@ public class EmployeeMain {
                     System.out.println("Start Date (YYYY-MM-DD): ");
                     String startDateInput = sc.nextLine();
                     LocalDate startDate = LocalDate.parse(startDateInput);
-                    int id = nextId++;
-                    Employee emp = new Employee(id, firstName, lastName, department, title, startDate);
-                    employees.add(emp);
+                    Employee emp = manager.addEmployee(firstName, lastName, department, title, startDate);
                     System.out.println(emp);
                     break;
 
@@ -100,6 +98,7 @@ public class EmployeeMain {
                     System.out.println("2. Search by Id");
                     choice = sc.nextInt();
                     sc.nextLine();
+
                     switch (choice) {
 
                         /* Search by name
@@ -115,15 +114,14 @@ public class EmployeeMain {
                             System.out.println("--------------------------------");
                             System.out.println("First Name: ");
                             String firstname = sc.nextLine();
-                            firstname = firstname.toLowerCase();
                             System.out.println("Last Name: ");
                             String lastname = sc.nextLine();
-                            lastname = lastname.toLowerCase();
-                            emp = findEmployeeByName(employees, firstname, lastname);
+                            emp = manager.findEmployeeByName(firstname, lastname);
                             if (emp != null) {
                                 System.out.println(emp);
                             }else{
-                                System.out.println("No Employee Found!");};
+                                System.out.println("No Employee Found!");
+                            }
                             break;
 
                         /* Search by id number
@@ -137,9 +135,9 @@ public class EmployeeMain {
                         case 2:
                             System.out.println("--------------------------------");
                             System.out.println("Employee ID Number: ");
-                            id = sc.nextInt();
+                            int searchId = sc.nextInt();
                             sc.nextLine();
-                            emp = findEmployeeById(employees, id);
+                            emp = manager.findEmployeeById(searchId);
                             if (emp != null) {
                                 System.out.println(emp);
                             }else{
@@ -162,8 +160,8 @@ public class EmployeeMain {
                 case 3:
                     System.out.println("--------------------------------");
                     System.out.println("To update an employee, please provide the Employee ID Number: ");
-                    id = sc.nextInt();
-                    emp = findEmployeeById(employees, id);
+                    int updateId = sc.nextInt();
+                    emp = manager.findEmployeeById(updateId);
 
                     if (emp != null) {
                         System.out.println(emp);
@@ -266,17 +264,17 @@ public class EmployeeMain {
                 case 4:
                     System.out.println("--------------------------------");
                     System.out.println("To terminate an employee, please provide the Employee ID Number: ");
-                    id = sc.nextInt();
-                    emp = findEmployeeById(employees, id);
+                    int termindateId = sc.nextInt();
+                    emp = manager.findEmployeeById(termindateId);
                     assert emp != null;
-                    emp.disable(id);
+                    emp.disable(termindateId);
                     System.out.println(emp);
                     break;
 
                 // Display entire list of employees.
                 case 5:
                     System.out.println("--------------------------------");
-                    for (Employee e : employees) {
+                    for (Employee e : manager.getAllEmployees()) {
                         System.out.println(e + "------------------------\n");
                     }
                     break;
@@ -285,6 +283,7 @@ public class EmployeeMain {
                 case 6:
                     System.out.println("--------------------------------");
                     System.out.println("Goodbye!");
+                    sc.close();
                     return;
 
                 /* If user enters any value other than 1-5, display error message
@@ -295,45 +294,5 @@ public class EmployeeMain {
                     break;
             }
         }
-    }
-
-    /**
-     * Searches for employee in employees list by employee id number.
-     *
-     * If not found, return null.
-     *
-     * @param employees list of employees
-     * @param id employee's unique identifier
-     * @return  the Employee object if a match is found, or null if no match is found
-     */
-    private static Employee findEmployeeById(ArrayList<Employee> employees, int id) {
-        for (Employee emp : employees) {
-            if (emp.getId() == id) {
-                return emp;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Searches for employee in employees list by first name
-     * and last name.
-     *
-     *
-     * @param employees list of employees
-     * @param firstname employee's first name
-     * @param lastname employee's last name
-     * @return  the Employee object if a match is found, or null if no match is found
-     */
-    private static Employee findEmployeeByName(ArrayList<Employee> employees, String firstname, String lastname) {
-        for (Employee emp : employees) {
-            if (emp.getFirstName().equalsIgnoreCase(firstname) &&
-                    emp.getLastName().equalsIgnoreCase(lastname)) {
-                System.out.println("-------------------------------");
-                System.out.println("Employee Found! \n\n");
-                return emp;
-            }
-        }
-        return null;
     }
 }
