@@ -27,6 +27,7 @@ public class EmployeeMain {
     static void main(String[] args) {
         //Initialize Employee Manager
         EmployeeManager manager = new EmployeeManager();
+        manager.loadFromCSV();
 
         //Initialize Scanner
         Scanner sc = new Scanner(System.in);
@@ -83,6 +84,7 @@ public class EmployeeMain {
                     LocalDate startDate = LocalDate.parse(startDateInput);
                     Employee emp = manager.addEmployee(firstName, lastName, department, title, startDate);
                     System.out.println(emp);
+                    manager.saveToCSV();
                     break;
 
                 /* Search for employee
@@ -191,6 +193,7 @@ public class EmployeeMain {
                                 String newFirstName = sc.nextLine();
                                 assert emp != null;
                                 emp.setFirstName(newFirstName);
+                                manager.saveToCSV();
                                 break;
 
                             /*
@@ -204,6 +207,7 @@ public class EmployeeMain {
                                 String newLastName = sc.nextLine();
                                 assert emp != null;
                                 emp.setLastName(newLastName);
+                                manager.saveToCSV();
                                 break;
 
                             /*
@@ -217,6 +221,7 @@ public class EmployeeMain {
                                 String newTitle = sc.nextLine();
                                 assert emp != null;
                                 emp.setTitle(newTitle);
+                                manager.saveToCSV();
                                 break;
 
                             /*
@@ -230,6 +235,7 @@ public class EmployeeMain {
                                 String newDepartment = sc.nextLine();
                                 assert emp != null;
                                 emp.setDepartment(newDepartment);
+                                manager.saveToCSV();
                                 break;
 
                             /*

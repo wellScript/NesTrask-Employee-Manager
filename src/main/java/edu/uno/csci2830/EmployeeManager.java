@@ -1,5 +1,6 @@
 package edu.uno.csci2830;
 
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 public class EmployeeManager {
     private final ArrayList<Employee> employees;
     private int nextId;
+    private static final String CSV_FILE = "employees.csv";
+    private static final String CSV_HEADER = "id,firstName,lastName,department,title,startDate,termDate,active";
 
     /**
      * Constructs a new EmployeeManager with an empty
@@ -95,5 +98,54 @@ public class EmployeeManager {
      */
     public ArrayList<Employee> getAllEmployees() {
         return employees;
+    }
+
+    /**
+     * Saves all employees to a CSV file.
+     */
+    public void saveToCSV() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(CSV_FILE))) {
+            writer.println(CSV_HEADER);
+            for (Employee emp : employees) {
+                writer.println(emp.toCSV());
+            }
+            System.out.println("Employee data saved.");
+        } catch (IOException e) {
+            System.out.println("Error saving data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads employees from a CSV file if it exists.
+     */
+    public void loadFromCSV() {
+        File file = new File(CSV_FILE);
+        if (!file.exists()) return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] fields = line.split(",", -1);
+                int id = Integer.parseInt(fields[0]);
+                String firstName    = fields[1];
+                String lastName     = fields[2];
+                String department   = fields[3];
+                String title        = fields[4];
+                LocalDate startDate = LocalDate.parse(fields[5]);
+                LocalDate termDate  = fields[6].isEmpty() ? null : LocalDate.parse(fields[6]);
+                boolean active      = Boolean.parseBoolean(fields[7]);
+
+                Employee emp = new Employee(
+                    id, firstName, lastName, department, title, startDate,
+                    termDate, active);
+                employees.add(emp);
+
+                if (id >= nextId) nextId = id + 1;
+            }
+            System.out.println("Employee data loaded.");
+        } catch (IOException e) {
+            System.out.println("Error loading data: " + e.getMessage());
+        }
     }
 }

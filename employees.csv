@@ -1,0 +1,4 @@
+id,firstName,lastName,department,title,startDate,termDate,active
+1000,Joe,Smith,IT,Business Analyst,2026-04-27,,true
+1001,Shelby,Test,IT,VP IT,2026-04-27,,true
+1002,Henry,Doorly,Operations,Receptionist,2026-04-27,,true

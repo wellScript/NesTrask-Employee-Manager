@@ -63,6 +63,31 @@ public class Employee{
             this.active = false;};
         System.out.println("Employee added successfully! Employee ID = " + id);
     }
+    /**
+     * Constructs an employee from saved data (e.g. loaded from CSV).
+     * Use this constructor when restoring employees from persistent storage.
+     *
+     * @param id         the unique identifier for the employee
+     * @param firstName  the employee's first name
+     * @param lastName   the employee's last name
+     * @param department the department to which the employee belongs
+     * @param title      the employee's job title
+     * @param startDate  the employee's start date
+     * @param termDate   the employee's termination date, or null if still active
+     * @param active     the employee's active status
+     */
+    public Employee(int id, String firstName, String lastName, String department,
+                    String title, LocalDate startDate, LocalDate termDate, boolean active) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.department = department;
+        this.title = title;
+        this.startDate = startDate;
+        this.termDate = termDate;
+        this.active = active;
+        this.dateLastMaint = LocalDate.now();
+    }
 
     /**
      * Disables the employee by setting their active status to false,
@@ -106,7 +131,7 @@ public class Employee{
     }
 
     /**
-     * Updates the employee's first name
+     * Sets the employee's first name
      *
      * @param firstname Employee's New First Name
      */
@@ -117,7 +142,7 @@ public class Employee{
     }
 
     /**
-     * Updates the employee's last name
+     * Sets the employee's last name
      *
      * @param lastName Employee's New Last Name
      */
@@ -128,7 +153,7 @@ public class Employee{
     }
 
     /**
-     * Updates the employee's title
+     * Sets the employee's title
      *
      * @param title Employee's New Title
      */
@@ -139,7 +164,7 @@ public class Employee{
     }
 
     /**
-     * Updates the employee's department
+     * Sets the employee's department
      *
      * @param department Employee's New Department
      */
@@ -147,6 +172,26 @@ public class Employee{
         this.department = department;
         this.dateLastMaint = LocalDate.now();
         System.out.println("Department Updated!\n");
+    }
+
+    /**
+     * Sets the employee's term date
+     */
+    public void setTermDate(LocalDate termDate){
+        this.termDate = termDate;
+        this.dateLastMaint = LocalDate.now();
+        System.out.println("Term date updated!\n");
+    }
+
+    /**
+     * Returns the employee's data as a CSV row.
+     *
+     * @return comma-separated string of employee fields
+     */
+    public String toCSV() {
+        return id + "," + firstName + "," + lastName + "," + department + "," +
+            title + "," + startDate + "," +
+            (termDate != null ? termDate : "") + "," + active;
     }
 
     /**
