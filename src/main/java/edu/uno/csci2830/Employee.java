@@ -131,6 +131,34 @@ public class Employee{
     }
 
     /**
+     * Returns the employee's department
+     *
+     * @return  Employee's Department
+     */
+    public String getDepartment() {
+        return this.department;
+    }
+
+    /**
+     * Returns the employee's title
+     *
+     * @return  Employee's Title
+     */
+    public String getTitle() {
+        return this.title;
+    }
+
+    /**
+     * Returns the employee's 'active' indicator
+     *
+     * @return  Employee's 'Active' indicator
+     */
+    public Boolean getActive() {
+        return this.active;
+    }
+    
+    
+    /**
      * Sets the employee's first name
      *
      * @param firstname Employee's New First Name
@@ -191,7 +219,7 @@ public class Employee{
     public String toCSV() {
         return id + "," + firstName + "," + lastName + "," + department + "," +
             title + "," + startDate + "," +
-            (termDate != null ? termDate : "") + "," + active;
+            (termDate != null ? termDate : "") + "," + active + "," + dateLastMaint;
     }
 
     /**
@@ -206,6 +234,6 @@ public class Employee{
         return ("Id: " + this.id + "\nFirst Name: " + this.firstName + "\nLast Name: " + this.lastName + "\n"
         + "Title: " + this.title + "\nDepartment: " + this.department + "\n"
         + "Start Date: " + this.startDate + "\nTerm Date: " + this.termDate + "\n"
-        + "Active? " + this.active + "\n\n");
+        + "Active? " + this.active + "\n\n" + "Last Modified Date: " + this.dateLastMaint);
     }
 }
