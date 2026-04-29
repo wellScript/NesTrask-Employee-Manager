@@ -78,7 +78,9 @@ public class EmployeeGUI extends JFrame {
         add(buildToolbar(), BorderLayout.SOUTH);
     }
 
-    /** Dark top bar with app title. */
+    /** 
+     * Dark top bar with app title. 
+     * */
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(BG_PANEL);
@@ -98,7 +100,9 @@ public class EmployeeGUI extends JFrame {
         return header;
     }
 
-    /** Table in the center + left sidebar with action buttons. */
+    /** 
+     * Table in the center + left sidebar with action buttons. 
+     */
     private JPanel buildCenter() {
         JPanel center = new JPanel(new BorderLayout(0, 0));
         center.setBackground(BG_DARK);
@@ -108,7 +112,9 @@ public class EmployeeGUI extends JFrame {
         return center;
     }
 
-    /** Left sidebar with action buttons. */
+    /** 
+     * Left sidebar with action buttons. 
+     */
     private JPanel buildSidebar() {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
@@ -122,6 +128,8 @@ public class EmployeeGUI extends JFrame {
         sidebar.add(sideBtn("＋  Add Employee",   ACCENT,  e -> showAddDialog()));
         sidebar.add(Box.createVerticalStrut(6));
         sidebar.add(sideBtn("⊘  Terminate",       DANGER,  e -> showTerminateDialog()));
+        sidebar.add(Box.createVerticalStrut(6));
+        sidebar.add(sideBtn("＋ Activate",       DANGER,  e -> showActivateDialog()));
         sidebar.add(Box.createVerticalStrut(20));
         sidebar.add(sideLabel("EDIT"));
         sidebar.add(Box.createVerticalStrut(8));
@@ -138,7 +146,9 @@ public class EmployeeGUI extends JFrame {
         return sidebar;
     }
 
-    /** Scrollable employee table. */
+    /** 
+     * Scrollable employee table. 
+     */
     private JPanel buildTablePanel() {
         tableModel = new DefaultTableModel(COLUMNS, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -168,7 +178,9 @@ public class EmployeeGUI extends JFrame {
         return tablePanel;
     }
 
-    /** Bottom toolbar (just search bar for quick filtering). */
+    /** 
+     * Bottom toolbar (just search bar for quick filtering). 
+     */
     private JPanel buildToolbar() {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
         bar.setBackground(BG_PANEL);
@@ -287,6 +299,48 @@ public class EmployeeGUI extends JFrame {
         dlg.setVisible(true);
     }
 
+    /** Dialog: Terminate employee by ID or selected row. */
+    private void showActivateDialog() {
+        int selectedRow = employeeTable.getSelectedRow();
+        String prefill = selectedRow >= 0
+            ? tableModel.getValueAt(selectedRow, 0).toString()
+            : "";
+
+        JDialog dlg = createDialog("Activate Employee", 360, 200);
+        JTextField idField = styledField();
+        idField.setText(prefill);
+
+        JPanel form = formPanel("Employee ID", idField);
+
+        JButton btn = accentButton("Activate", DANGER);
+        btn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idField.getText().trim());
+                Employee emp = manager.findEmployeeById(id);
+                if (emp == null) {
+                    setStatus("⚠  No employee found with ID " + id + ".", DANGER);
+                    return;
+                }
+                int confirm = JOptionPane.showConfirmDialog(dlg,
+                    "Activate " + emp.getFirstName() + " " + emp.getLastName() + "?",
+                    "Confirm Activation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    emp.setActive(id);
+                    manager.saveToCSV();
+                    refreshTable();
+                    dlg.dispose();
+                    setStatus("⊘  Employee ID " + id + " Activated.", DANGER);
+                }
+            } catch (NumberFormatException ex) {
+                setStatus("⚠  Please enter a valid numeric ID.", DANGER);
+            }
+        });
+
+        dlg.add(form, BorderLayout.CENTER);
+        dlg.add(btnRow(btn), BorderLayout.SOUTH);
+        dlg.setVisible(true);
+    }
+
     /** Dialog: Edit selected employee's fields. */
     private void showEditDialog() {
         int selectedRow = employeeTable.getSelectedRow();
@@ -305,6 +359,7 @@ public class EmployeeGUI extends JFrame {
         JTextField lnField    = styledField(); lnField.setText(emp.getLastName());
         JTextField deptField  = styledField(); deptField.setText(emp.getDepartment());
         JTextField titleField = styledField(); titleField.setText(emp.getTitle());
+        JTextField termDateField = styledField(); termDateField.setText(emp.getTermDate());
 
         JPanel form = formPanel(
             "First Name",  fnField,
@@ -319,6 +374,7 @@ public class EmployeeGUI extends JFrame {
             emp.setLastName(lnField.getText().trim());
             emp.setDepartment(deptField.getText().trim());
             emp.setTitle(titleField.getText().trim());
+            emp.setTermDate(LocalDate.parse(termDateField.getText().trim()));
             manager.saveToCSV();
             refreshTable();
             dlg.dispose();
@@ -474,7 +530,7 @@ public class EmployeeGUI extends JFrame {
                 if (col == 7 && value != null) {
                     boolean active = Boolean.parseBoolean(value.toString());
                     setForeground(active ? SUCCESS : DANGER);
-                    setText(active ? "✔ Active" : "✘ Terminated");
+                    setText(active ? "✔ Active" : "✘ Inactive");
                 }
                 return this;
             }
@@ -589,7 +645,9 @@ public class EmployeeGUI extends JFrame {
         return p;
     }
 
-    /** Create a styled modal dialog. */
+    /** 
+     * Create a styled modal dialog. 
+     * */
     private JDialog createDialog(String title, int w, int h) {
         JDialog dlg = new JDialog(this, title, true);
         dlg.setSize(w, h);

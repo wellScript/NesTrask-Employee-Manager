@@ -1,6 +1,7 @@
 package edu.uno.csci2830;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Represents an employee in the organization.
@@ -47,7 +48,6 @@ public class Employee{
      * @param startDate the employee's start date
      *
      * @author Shelby Wells
-     * @version 1.0
      */
     public Employee(int id, String firstName, String lastName, String department, String title, LocalDate startDate) {
         this.id = id;
@@ -60,7 +60,7 @@ public class Employee{
         if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
             this.active = true;
         } else {
-            this.active = false;};
+            this.active = false;}
         System.out.println("Employee added successfully! Employee ID = " + id);
     }
     /**
@@ -103,6 +103,10 @@ public class Employee{
         System.out.println("Employee Terminated!");
     }
 
+    
+    // ─────────────────────────────────────────────────────────────────────────
+    //  GETTERS
+    // ─────────────────────────────────────────────────────────────────────────
     /**
      * Returns the employee's ID number
      *
@@ -153,15 +157,31 @@ public class Employee{
      *
      * @return  Employee's 'Active' indicator
      */
-    public Boolean getActive() {
+    public Boolean isActive() {
         return this.active;
     }
-    
+
+    /**
+     * Returns the employee's termination date
+     *
+     * @return Employee's termination date
+     */
+    public String getTermDate() {
+        if (this.termDate == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return this.termDate.format(formatter);
+        }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  SETTERS
+    // ─────────────────────────────────────────────────────────────────────────
     
     /**
      * Sets the employee's first name
      *
-     * @param firstname Employee's New First Name
+     * @param firstName Employee's New First Name
      */
     public void setFirstName(String firstName){
         this.firstName = firstName;
@@ -209,6 +229,16 @@ public class Employee{
         this.termDate = termDate;
         this.dateLastMaint = LocalDate.now();
         System.out.println("Term date updated!\n");
+    }
+
+    /**
+     * Sets the employee's 'Active' indicator to true
+     */
+    public void setActive(int id) {
+        this.active = true;
+        this.startDate = LocalDate.now();
+        this.dateLastMaint = LocalDate.now();
+        System.out.println("Employee set to Active!\n");
     }
 
     /**

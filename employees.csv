@@ -1,6 +1,0 @@
-id,firstName,lastName,department,title,startDate,termDate,active
-1000,Joe,Smith,IT,Business Analyst,2026-04-27,,true,2026-04-28
-1001,Shelby,Test,IT,VP IT,2026-04-27,,true,2026-04-28
-1002,Henry,Doorly,Operations,Receptionist,2026-04-27,2026-04-28,false,2026-04-28
-1003,Kaiser,Dog,HR,Employee Experience Specialist,2026-04-28,,true,2026-04-28
-1004,89432,!lrjeia,Accounting,dtjeio58,2026-04-28,,true,2026-04-28
