@@ -1,0 +1,5 @@
+id,firstName,lastName,department,title,startDate,termDate,active
+1000,Joe,Smith,IT,Systems Analyst,2026-04-29,2026-04-29,true,2026-04-29
+1001,Jan,Jackson,HR,Recruiter,2026-04-29,,true,2026-04-29
+1002,Amy,Carter,Finance,Accountant,2026-04-29,,true,2026-04-29
+1003,Amanda,Banks,Operations,Banker,2026-04-29,,true,2026-04-29
