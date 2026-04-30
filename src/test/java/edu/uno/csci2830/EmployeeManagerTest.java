@@ -13,23 +13,31 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for {@link EmployeeManager} and {@link Employee}.
  *
- * <p>Uses JUnit 5. Add the following dependency to your project
- * (Maven example):
+ * <p>Uses JUnit 5. Requires the following dependencies in pom.xml:
  *
  * <pre>
  * &lt;dependency&gt;
  *     &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
- *     &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+ *     &lt;artifactId&gt;junit-jupiter-api&lt;/artifactId&gt;
+ *     &lt;version&gt;5.10.2&lt;/version&gt;
+ *     &lt;scope&gt;test&lt;/scope&gt;
+ * &lt;/dependency&gt;
+ * &lt;dependency&gt;
+ *     &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+ *     &lt;artifactId&gt;junit-jupiter-engine&lt;/artifactId&gt;
+ *     &lt;version&gt;5.10.2&lt;/version&gt;
+ *     &lt;scope&gt;test&lt;/scope&gt;
+ * &lt;/dependency&gt;
+ * &lt;dependency&gt;
+ *     &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+ *     &lt;artifactId&gt;junit-jupiter-params&lt;/artifactId&gt;
  *     &lt;version&gt;5.10.2&lt;/version&gt;
  *     &lt;scope&gt;test&lt;/scope&gt;
  * &lt;/dependency&gt;
  * </pre>
  *
- * If you are using IntelliJ without Maven/Gradle, add the JUnit 5
- * JAR via File → Project Structure → Libraries.
- *
  * @author Generated for Shelby Wells
- * @version 1.0
+ * @version 2.0
  */
 @DisplayName("Employee Manager Tests")
 class EmployeeManagerTest {
@@ -37,11 +45,11 @@ class EmployeeManagerTest {
     private EmployeeManager manager;
 
     // Fixed test dates
-    private static final LocalDate PAST_DATE    = LocalDate.of(2020, 1, 15);
-    private static final LocalDate TODAY        = LocalDate.now();
-    private static final LocalDate FUTURE_DATE  = LocalDate.now().plusYears(1);
+    private static final LocalDate PAST_DATE   = LocalDate.of(2020, 1, 15);
+    private static final LocalDate TODAY       = LocalDate.now();
+    private static final LocalDate FUTURE_DATE = LocalDate.now().plusYears(1);
 
-    // Shared CSV file name — must match EmployeeManager.CSV_FILE
+    // Must match EmployeeManager.CSV_FILE
     private static final String CSV_FILE = "employees.csv";
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -50,9 +58,7 @@ class EmployeeManagerTest {
 
     @BeforeEach
     void setUp() {
-        // Fresh manager before every test — no CSV loaded
         manager = new EmployeeManager();
-        // Remove any leftover CSV so tests are isolated
         new File(CSV_FILE).delete();
     }
 
@@ -81,22 +87,25 @@ class EmployeeManagerTest {
         void addEmployee_fieldsAreCorrect() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Engineering", "Developer", PAST_DATE);
             assertAll(
-                () -> assertEquals("Jane",        emp.getFirstName()),
-                () -> assertEquals("Doe",         emp.getLastName()),
-                () -> assertEquals("Engineering", emp.getDepartment()),
-                () -> assertEquals("Developer",   emp.getTitle())
+                    () -> assertEquals("Jane",        emp.getFirstName()),
+                    () -> assertEquals("Doe",         emp.getLastName()),
+                    () -> assertEquals("Engineering", emp.getDepartment()),
+                    () -> assertEquals("Developer",   emp.getTitle()),
+                    () -> assertEquals(PAST_DATE.toString(),     emp.getStartDate())
             );
         }
 
         @Test
         @DisplayName("IDs are unique and auto-incremented")
         void addEmployee_idsAreUnique() {
-            Employee e1 = manager.addEmployee("Alice", "Smith", "HR",  "Manager",   PAST_DATE);
-            Employee e2 = manager.addEmployee("Bob",   "Jones", "IT",  "Analyst",   PAST_DATE);
+            Employee e1 = manager.addEmployee("Alice", "Smith", "HR",  "Manager",     PAST_DATE);
+            Employee e2 = manager.addEmployee("Bob",   "Jones", "IT",  "Analyst",     PAST_DATE);
             Employee e3 = manager.addEmployee("Carol", "White", "Ops", "Coordinator", PAST_DATE);
-            assertNotEquals(e1.getId(), e2.getId());
-            assertNotEquals(e2.getId(), e3.getId());
-            assertNotEquals(e1.getId(), e3.getId());
+            assertAll(
+                    () -> assertNotEquals(e1.getId(), e2.getId()),
+                    () -> assertNotEquals(e2.getId(), e3.getId()),
+                    () -> assertNotEquals(e1.getId(), e3.getId())
+            );
         }
 
         @Test
@@ -110,22 +119,28 @@ class EmployeeManagerTest {
         @DisplayName("Employee with past start date is active")
         void addEmployee_pastStartDate_isActive() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
-            // Active status is readable via toCSV()
-            assertTrue(emp.toCSV().contains("true"));
+            assertTrue(emp.isActive());
         }
 
         @Test
         @DisplayName("Employee with today's start date is active")
         void addEmployee_todayStartDate_isActive() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", TODAY);
-            assertTrue(emp.toCSV().contains("true"));
+            assertTrue(emp.isActive());
         }
 
         @Test
         @DisplayName("Employee with future start date is inactive")
         void addEmployee_futureStartDate_isInactive() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", FUTURE_DATE);
-            assertTrue(emp.toCSV().contains("false"));
+            assertFalse(emp.isActive());
+        }
+
+        @Test
+        @DisplayName("dateLastMaint is set to today on creation")
+        void addEmployee_dateLastMaint_isToday() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
         }
 
         @Test
@@ -164,7 +179,7 @@ class EmployeeManagerTest {
         @Test
         @DisplayName("Returns correct employee among multiple")
         void findById_multipleEmployees_returnsCorrectOne() {
-            manager.addEmployee("Alice", "Smith", "HR",  "Manager", PAST_DATE);
+            manager.addEmployee("Alice", "Smith", "HR",  "Manager",     PAST_DATE);
             Employee target = manager.addEmployee("Bob", "Jones", "IT", "Analyst", PAST_DATE);
             manager.addEmployee("Carol", "White", "Ops", "Coordinator", PAST_DATE);
 
@@ -186,8 +201,7 @@ class EmployeeManagerTest {
         @DisplayName("Returns employee with exact name match")
         void findByName_exactMatch_returnsEmployee() {
             manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
-            Employee found = manager.findEmployeeByName("Jane", "Doe");
-            assertNotNull(found);
+            assertNotNull(manager.findEmployeeByName("Jane", "Doe"));
         }
 
         @Test
@@ -195,9 +209,9 @@ class EmployeeManagerTest {
         void findByName_caseInsensitive_returnsEmployee() {
             manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
             assertAll(
-                () -> assertNotNull(manager.findEmployeeByName("jane", "doe")),
-                () -> assertNotNull(manager.findEmployeeByName("JANE", "DOE")),
-                () -> assertNotNull(manager.findEmployeeByName("Jane", "doe"))
+                    () -> assertNotNull(manager.findEmployeeByName("jane", "doe")),
+                    () -> assertNotNull(manager.findEmployeeByName("JANE", "DOE")),
+                    () -> assertNotNull(manager.findEmployeeByName("Jane", "doe"))
             );
         }
 
@@ -224,9 +238,9 @@ class EmployeeManagerTest {
 
         @ParameterizedTest(name = "Name: {0} {1}")
         @CsvSource({
-            "Alice, Smith",
-            "Bob,   Jones",
-            "Carol, White"
+                "Alice, Smith",
+                "Bob,   Jones",
+                "Carol, White"
         })
         @DisplayName("Finds each employee by name in a populated list")
         void findByName_multipleEmployees_findsEach(String first, String last) {
@@ -250,17 +264,23 @@ class EmployeeManagerTest {
         void terminate_setsInactive() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
             manager.terminateEmployee(emp.getId());
-            assertTrue(emp.toCSV().contains("false"));
+            assertFalse(emp.isActive());
         }
 
         @Test
-        @DisplayName("Terminated employee's CSV includes term date")
+        @DisplayName("Terminated employee has a term date set to today")
         void terminate_setsTermDate() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
             manager.terminateEmployee(emp.getId());
-            // Term date column (index 6) should not be empty
-            String termDate = emp.toCSV().split(",", -1)[6];
-            assertFalse(termDate.isBlank());
+            assertEquals(TODAY.toString(), emp.getTermDate());
+        }
+
+        @Test
+        @DisplayName("Terminated employee's dateLastMaint updates to today")
+        void terminate_updatesDateLastMaint() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            manager.terminateEmployee(emp.getId());
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
         }
 
         @Test
@@ -275,7 +295,43 @@ class EmployeeManagerTest {
             Employee e1 = manager.addEmployee("Alice", "Smith", "HR", "Manager", PAST_DATE);
             Employee e2 = manager.addEmployee("Bob",   "Jones", "IT", "Analyst", PAST_DATE);
             manager.terminateEmployee(e1.getId());
-            assertTrue(e2.toCSV().contains("true"));
+            assertTrue(e2.isActive());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  ACTIVATE EMPLOYEE
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("setActive()")
+    class ActivateTests {
+
+        @Test
+        @DisplayName("Activated employee is active")
+        void activate_setsActive() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            manager.terminateEmployee(emp.getId());
+            emp.setActive(emp.getId());
+            assertTrue(emp.isActive());
+        }
+
+        @Test
+        @DisplayName("Activated employee's dateLastMaint updates to today")
+        void activate_updatesDateLastMaint() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            manager.terminateEmployee(emp.getId());
+            emp.setActive(emp.getId());
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
+        }
+
+        @Test
+        @DisplayName("Activating employee resets start date to today")
+        void activate_resetsStartDate() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            manager.terminateEmployee(emp.getId());
+            emp.setActive(emp.getId());
+            assertEquals(TODAY.toString(), emp.getStartDate());
         }
     }
 
@@ -302,10 +358,24 @@ class EmployeeManagerTest {
         }
 
         @Test
+        @DisplayName("setFirstName() updates dateLastMaint to today")
+        void setFirstName_updatesDateLastMaint() {
+            emp.setFirstName("Janet");
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
+        }
+
+        @Test
         @DisplayName("setLastName() updates last name")
         void setLastName_updatesValue() {
             emp.setLastName("Smith");
             assertEquals("Smith", emp.getLastName());
+        }
+
+        @Test
+        @DisplayName("setLastName() updates dateLastMaint to today")
+        void setLastName_updatesDateLastMaint() {
+            emp.setLastName("Smith");
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
         }
 
         @Test
@@ -316,10 +386,63 @@ class EmployeeManagerTest {
         }
 
         @Test
+        @DisplayName("setTitle() updates dateLastMaint to today")
+        void setTitle_updatesDateLastMaint() {
+            emp.setTitle("Senior Developer");
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
+        }
+
+        @Test
         @DisplayName("setDepartment() updates department")
         void setDepartment_updatesValue() {
             emp.setDepartment("Product");
             assertEquals("Product", emp.getDepartment());
+        }
+
+        @Test
+        @DisplayName("setDepartment() updates dateLastMaint to today")
+        void setDepartment_updatesDateLastMaint() {
+            emp.setDepartment("Product");
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
+        }
+
+        @Test
+        @DisplayName("setTermDate() updates term date")
+        void setTermDate_updatesValue() {
+            LocalDate termDate = LocalDate.of(2025, 6, 1);
+            emp.setTermDate(termDate);
+            assertEquals(termDate.toString(), emp.getTermDate());
+        }
+
+        @Test
+        @DisplayName("setTermDate() updates dateLastMaint to today")
+        void setTermDate_updatesDateLastMaint() {
+            emp.setTermDate(LocalDate.of(2025, 6, 1));
+            assertEquals(TODAY.toString(), emp.getDateLastMaint());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  GET TERM DATE
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("getTermDate()")
+    class GetTermDateTests {
+
+        @Test
+        @DisplayName("Returns empty string when employee is not terminated")
+        void getTermDate_notTerminated_returnsEmptyString() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            assertEquals("", emp.getTermDate());
+        }
+
+        @Test
+        @DisplayName("Returns formatted date string after termination")
+        void getTermDate_afterTermination_returnsDate() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            manager.terminateEmployee(emp.getId());
+            assertEquals(TODAY.toString(), emp.getTermDate());
         }
     }
 
@@ -342,13 +465,12 @@ class EmployeeManagerTest {
         @Test
         @DisplayName("loadFromCSV() restores all employees")
         void saveAndLoad_restoresEmployees() {
-            manager.addEmployee("Alice", "Smith", "HR",  "Manager", PAST_DATE);
-            manager.addEmployee("Bob",   "Jones", "IT",  "Analyst", PAST_DATE);
+            manager.addEmployee("Alice", "Smith", "HR", "Manager", PAST_DATE);
+            manager.addEmployee("Bob",   "Jones", "IT", "Analyst", PAST_DATE);
             manager.saveToCSV();
 
             EmployeeManager loaded = new EmployeeManager();
             loaded.loadFromCSV();
-
             assertEquals(2, loaded.getAllEmployees().size());
         }
 
@@ -363,25 +485,36 @@ class EmployeeManagerTest {
 
             Employee emp = loaded.getAllEmployees().get(0);
             assertAll(
-                () -> assertEquals("Alice",   emp.getFirstName()),
-                () -> assertEquals("Smith",   emp.getLastName()),
-                () -> assertEquals("HR",      emp.getDepartment()),
-                () -> assertEquals("Manager", emp.getTitle())
+                    () -> assertEquals("Alice",   emp.getFirstName()),
+                    () -> assertEquals("Smith",   emp.getLastName()),
+                    () -> assertEquals("HR",      emp.getDepartment()),
+                    () -> assertEquals("Manager", emp.getTitle()),
+                    () -> assertEquals(PAST_DATE.toString(), emp.getStartDate())
             );
         }
 
         @Test
-        @DisplayName("loadFromCSV() restores terminated employee correctly")
-        void saveAndLoad_preservesTermination() {
+        @DisplayName("loadFromCSV() restores active status correctly")
+        void saveAndLoad_preservesActiveStatus() {
             Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
             manager.terminateEmployee(emp.getId());
             manager.saveToCSV();
 
             EmployeeManager loaded = new EmployeeManager();
             loaded.loadFromCSV();
+            assertFalse(loaded.getAllEmployees().get(0).isActive());
+        }
 
-            Employee restored = loaded.getAllEmployees().get(0);
-            assertTrue(restored.toCSV().contains("false"));
+        @Test
+        @DisplayName("loadFromCSV() restores term date correctly")
+        void saveAndLoad_preservesTermDate() {
+            Employee emp = manager.addEmployee("Jane", "Doe", "Eng", "Dev", PAST_DATE);
+            manager.terminateEmployee(emp.getId());
+            manager.saveToCSV();
+
+            EmployeeManager loaded = new EmployeeManager();
+            loaded.loadFromCSV();
+            assertEquals(TODAY.toString(), loaded.getAllEmployees().get(0).getTermDate());
         }
 
         @Test
@@ -402,9 +535,8 @@ class EmployeeManagerTest {
             EmployeeManager loaded = new EmployeeManager();
             loaded.loadFromCSV();
 
-            // Adding a new employee should get an ID higher than any existing one
             int maxExisting = loaded.getAllEmployees().stream()
-                .mapToInt(Employee::getId).max().orElse(0);
+                    .mapToInt(Employee::getId).max().orElse(0);
             Employee newEmp = loaded.addEmployee("Carol", "White", "Ops", "Coordinator", PAST_DATE);
             assertTrue(newEmp.getId() > maxExisting);
         }

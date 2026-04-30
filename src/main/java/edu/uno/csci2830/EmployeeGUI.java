@@ -1,10 +1,37 @@
 package edu.uno.csci2830;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.MatteBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -48,7 +75,7 @@ public class EmployeeGUI extends JFrame {
 
     // ── Table columns ─────────────────────────────────────────────────────────
     private static final String[] COLUMNS =
-        {"ID", "First Name", "Last Name", "Department", "Title", "Start Date", "Term Date", "Active"};
+        {"ID", "First Name", "Last Name", "Department", "Title", "Start Date", "Term Date", "Active", "DateLastMaint"};
 
     // ─────────────────────────────────────────────────────────────────────────
     public EmployeeGUI() {
@@ -453,9 +480,10 @@ public class EmployeeGUI extends JFrame {
                 emp.getLastName(),
                 emp.getDepartment(),
                 emp.getTitle(),
-                emp.toCSV().split(",")[5],   // startDate
-                emp.toCSV().split(",")[6],   // termDate
-                emp.toCSV().split(",")[7]    // active
+                emp.getStartDate(),
+                emp.getTermDate(),
+                emp.isActive(),
+                emp.getDateLastMaint()
             });
         }
         setStatus("  " + all.size() + " employee(s) loaded.", TEXT_MUTED);
@@ -482,8 +510,8 @@ public class EmployeeGUI extends JFrame {
             if (q.isEmpty() || row.contains(q)) {
                 tableModel.addRow(new Object[]{
                     emp.getId(), emp.getFirstName(), emp.getLastName(),
-                    emp.getDepartment(), emp.getTitle(),
-                    csv[5], csv[6], csv[7]
+                    emp.getDepartment(), emp.getTitle(), emp.getStartDate(),
+                    emp.getTermDate(), emp.isActive(), emp.getDateLastMaint()
                 });
             }
         }

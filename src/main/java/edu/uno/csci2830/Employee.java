@@ -174,6 +174,31 @@ public class Employee{
         return this.termDate.format(formatter);
         }
 
+    /**
+     * Returns the employee's start date
+     *
+     * @return Employee's start date
+     */
+    public String getStartDate() {
+        if (this.startDate == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return this.startDate.format(formatter);
+    }
+    /**
+     * Returns the employee's date last maintained information (last modified)
+     *
+     * @return Employee's last modified date
+     */
+    public String getDateLastMaint() {
+        if (this.dateLastMaint == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return this.dateLastMaint.format(formatter);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     //  SETTERS
     // ─────────────────────────────────────────────────────────────────────────
