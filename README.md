@@ -8,10 +8,8 @@ employees by name or employee ID, as well as view a list of all employees.
 - Modify existing employees
 - Disable employees
 - Search for employees
-- Export employees
 ## Enhancements
 - Allow storing of employee information via CSV file
-- Allow exporting of employee list
 - GUI Development
 ## Author
 - Shelby Wells
